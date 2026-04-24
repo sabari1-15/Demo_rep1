@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tic Tac Toe</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #1a1a2e;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #eaeaea;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+      color: #e94560;
+    }
+
+    #scoreboard {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 1.5rem;
+      font-size: 1rem;
+    }
+
+    .score-box {
+      text-align: center;
+      background: #16213e;
+      border: 2px solid #0f3460;
+      border-radius: 10px;
+      padding: 0.5rem 1.5rem;
+      min-width: 80px;
+    }
+
+    .score-box .label { font-size: 0.75rem; color: #aaa; text-transform: uppercase; letter-spacing: 0.05em; }
+    .score-box .value { font-size: 1.8rem; font-weight: bold; margin-top: 2px; }
+
+    #score-x .value  { color: #e94560; }
+    #score-o .value  { color: #53d8fb; }
+    #score-tie .value { color: #f5a623; }
+
+    #status {
+      font-size: 1.1rem;
+      height: 1.5rem;
+      margin-bottom: 1rem;
+      color: #ccc;
+    }
+
+    #status.win  { color: #e94560; font-weight: bold; }
+    #status.draw { color: #f5a623; font-weight: bold; }
+
+    #board {
+      display: grid;
+      grid-template-columns: repeat(3, 110px);
+      grid-template-rows:    repeat(3, 110px);
+      gap: 8px;
+    }
+
+    .cell {
+      background: #16213e;
+      border: 2px solid #0f3460;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      user-select: none;
+    }
+
+    .cell:hover:not(.taken) { background: #0f3460; transform: scale(1.04); }
+
+    .cell.x { color: #e94560; }
+    .cell.o { color: #53d8fb; }
+
+    .cell.winner { background: #0f3460; animation: pulse 0.6s ease-in-out 2; }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50%       { transform: scale(1.08); }
+    }
+
+    #controls {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    button {
+      padding: 0.55rem 1.4rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 600;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+
+    button:hover  { opacity: 0.85; transform: scale(1.03); }
+    button:active { transform: scale(0.97); }
+
+    #btn-restart { background: #e94560; color: #fff; }
+    #btn-reset   { background: #0f3460; color: #eaeaea; }
+
+    #mode-toggle {
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.9rem;
+    }
+
+    #mode-toggle label { cursor: pointer; color: #aaa; }
+
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+    }
+
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+
+    .slider {
+      position: absolute;
+      inset: 0;
+      background: #0f3460;
+      border-radius: 24px;
+      transition: background 0.2s;
+      cursor: pointer;
+    }
+
+    .slider::before {
+      content: '';
+      position: absolute;
+      width: 18px; height: 18px;
+      left: 3px; top: 3px;
+      background: #eaeaea;
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+
+    .toggle-switch input:checked + .slider { background: #53d8fb; }
+    .toggle-switch input:checked + .slider::before { transform: translateX(20px); }
+  </style>
+</head>
+<body>
+
+<h1>Tic Tac Toe</h1>
+
+<div id="scoreboard">
+  <div class="score-box" id="score-x">
+    <div class="label">X</div>
+    <div class="value" id="val-x">0</div>
+  </div>
+  <div class="score-box" id="score-tie">
+    <div class="label">Ties</div>
+    <div class="value" id="val-tie">0</div>
+  </div>
+  <div class="score-box" id="score-o">
+    <div class="label">O</div>
+    <div class="value" id="val-o">0</div>
+  </div>
+</div>
+
+<div id="mode-toggle">
+  <label for="ai-toggle">2 Players</label>
+  <label class="toggle-switch">
+    <input type="checkbox" id="ai-toggle" />
+    <span class="slider"></span>
+  </label>
+  <label for="ai-toggle">vs AI</label>
+</div>
+
+<div id="status">Player X's turn</div>
+
+<div id="board">
+  <div class="cell" data-index="0"></div>
+  <div class="cell" data-index="1"></div>
+  <div class="cell" data-index="2"></div>
+  <div class="cell" data-index="3"></div>
+  <div class="cell" data-index="4"></div>
+  <div class="cell" data-index="5"></div>
+  <div class="cell" data-index="6"></div>
+  <div class="cell" data-index="7"></div>
+  <div class="cell" data-index="8"></div>
+</div>
+
+<div id="controls">
+  <button id="btn-restart">New Game</button>
+  <button id="btn-reset">Reset Scores</button>
+</div>
+
+<script>
+  const WINS = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+
+  const cells   = document.querySelectorAll('.cell');
+  const status  = document.getElementById('status');
+  const valX    = document.getElementById('val-x');
+  const valO    = document.getElementById('val-o');
+  const valTie  = document.getElementById('val-tie');
+  const aiToggle = document.getElementById('ai-toggle');
+
+  let board, current, gameOver, scores;
+
+  scores = { X: 0, O: 0, tie: 0 };
+
+  function initGame() {
+    board    = Array(9).fill('');
+    current  = 'X';
+    gameOver = false;
+    cells.forEach(c => { c.textContent = ''; c.className = 'cell'; });
+    setStatus(`Player ${current}'s turn`);
+    status.className = '';
+  }
+
+  function setStatus(msg, type = '') {
+    status.textContent = msg;
+    status.className   = type;
+  }
+
+  function checkWin(b, p) {
+    return WINS.find(combo => combo.every(i => b[i] === p)) || null;
+  }
+
+  function handleClick(idx) {
+    if (gameOver || board[idx]) return;
+    if (aiToggle.checked && current === 'O') return; // AI's turn
+
+    play(idx);
+    if (!gameOver && aiToggle.checked && current === 'O') {
+      setTimeout(aiMove, 350);
+    }
+  }
+
+  function play(idx) {
+    board[idx]          = current;
+    cells[idx].textContent = current;
+    cells[idx].classList.add(current.toLowerCase(), 'taken');
+
+    const winCombo = checkWin(board, current);
+    if (winCombo) {
+      winCombo.forEach(i => cells[i].classList.add('winner'));
+      scores[current]++;
+      updateScores();
+      setStatus(`Player ${current} wins!`, 'win');
+      gameOver = true;
+      return;
+    }
+
+    if (board.every(Boolean)) {
+      scores.tie++;
+      updateScores();
+      setStatus("It's a draw!", 'draw');
+      gameOver = true;
+      return;
+    }
+
+    current = current === 'X' ? 'O' : 'X';
+    setStatus(`Player ${current}'s turn`);
+  }
+
+  function updateScores() {
+    valX.textContent   = scores.X;
+    valO.textContent   = scores.O;
+    valTie.textContent = scores.tie;
+  }
+
+  // Minimax AI
+  function aiMove() {
+    let best = -Infinity, move = -1;
+    board.forEach((v, i) => {
+      if (!v) {
+        board[i] = 'O';
+        const score = minimax(board, 0, false);
+        board[i] = '';
+        if (score > best) { best = score; move = i; }
+      }
+    });
+    if (move !== -1) play(move);
+  }
+
+  function minimax(b, depth, isMax) {
+    if (checkWin(b, 'O')) return  10 - depth;
+    if (checkWin(b, 'X')) return depth - 10;
+    if (b.every(Boolean)) return 0;
+
+    if (isMax) {
+      let best = -Infinity;
+      b.forEach((v, i) => { if (!v) { b[i] = 'O'; best = Math.max(best, minimax(b, depth+1, false)); b[i] = ''; } });
+      return best;
+    } else {
+      let best = Infinity;
+      b.forEach((v, i) => { if (!v) { b[i] = 'X'; best = Math.min(best, minimax(b, depth+1, true)); b[i] = ''; } });
+      return best;
+    }
+  }
+
+  cells.forEach(cell => cell.addEventListener('click', () => handleClick(+cell.dataset.index)));
+  document.getElementById('btn-restart').addEventListener('click', initGame);
+  document.getElementById('btn-reset').addEventListener('click', () => { scores = { X: 0, O: 0, tie: 0 }; updateScores(); initGame(); });
+  aiToggle.addEventListener('change', initGame);
+
+  initGame();
+</script>
+</body>
+</html>
