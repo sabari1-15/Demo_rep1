@@ -1,317 +1,431 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html> <!-- Declares this as an HTML5 document -->
+<html lang="en"> <!-- Root element; lang="en" sets the language to English for accessibility -->
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tic Tac Toe</title>
+  <!-- HEAD: contains metadata and styles, nothing visible on the page -->
+  <meta charset="UTF-8" /> <!-- Tells the browser to use UTF-8 character encoding (supports all symbols) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" /> <!-- Makes the page responsive on mobile devices -->
+  <title>Tic Tac Toe</title> <!-- Sets the browser tab title -->
+
   <style>
+    /* ---------- RESET & BASE ---------- */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    /* Applies to every element: border-box makes width/height include padding & border;
+       margin/padding reset removes browser default spacing */
 
     body {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: #1a1a2e;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color: #eaeaea;
+      min-height: 100vh;          /* Body is at least as tall as the viewport */
+      display: flex;              /* Uses flexbox to centre children */
+      flex-direction: column;     /* Stacks children vertically */
+      align-items: center;        /* Centres children horizontally */
+      justify-content: center;    /* Centres children vertically */
+      background: #1a1a2e;        /* Dark navy background colour */
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Clean sans-serif font stack */
+      color: #eaeaea;             /* Light grey default text colour */
     }
 
+    /* ---------- TITLE ---------- */
     h1 {
-      font-size: 2.5rem;
-      letter-spacing: 0.1em;
-      margin-bottom: 1rem;
-      color: #e94560;
+      font-size: 2.5rem;          /* Large heading size */
+      letter-spacing: 0.1em;     /* Slight spacing between letters for style */
+      margin-bottom: 1rem;        /* Space below the title */
+      color: #e94560;             /* Red-pink accent colour */
     }
 
+    /* ---------- SCOREBOARD ---------- */
     #scoreboard {
-      display: flex;
-      gap: 2rem;
-      margin-bottom: 1.5rem;
-      font-size: 1rem;
+      display: flex;              /* Places the three score boxes side-by-side */
+      gap: 2rem;                  /* Space between each score box */
+      margin-bottom: 1.5rem;      /* Space below the scoreboard */
+      font-size: 1rem;            /* Base font size for this section */
     }
 
     .score-box {
-      text-align: center;
-      background: #16213e;
-      border: 2px solid #0f3460;
-      border-radius: 10px;
-      padding: 0.5rem 1.5rem;
-      min-width: 80px;
+      text-align: center;         /* Centres label and value text */
+      background: #16213e;        /* Slightly lighter dark blue box background */
+      border: 2px solid #0f3460; /* Visible border to define each box */
+      border-radius: 10px;        /* Rounded corners */
+      padding: 0.5rem 1.5rem;     /* Inner spacing: top/bottom, left/right */
+      min-width: 80px;            /* Ensures boxes don't shrink too small */
     }
 
+    /* Label text inside each score box (e.g. "X", "O", "Ties") */
     .score-box .label { font-size: 0.75rem; color: #aaa; text-transform: uppercase; letter-spacing: 0.05em; }
+    /* Numeric value inside each score box */
     .score-box .value { font-size: 1.8rem; font-weight: bold; margin-top: 2px; }
 
-    #score-x .value  { color: #e94560; }
-    #score-o .value  { color: #53d8fb; }
-    #score-tie .value { color: #f5a623; }
+    /* Individual colour for each player's score */
+    #score-x .value   { color: #e94560; } /* Red-pink for X */
+    #score-o .value   { color: #53d8fb; } /* Cyan-blue for O */
+    #score-tie .value { color: #f5a623; } /* Orange for ties */
 
+    /* ---------- STATUS LINE ---------- */
     #status {
-      font-size: 1.1rem;
-      height: 1.5rem;
-      margin-bottom: 1rem;
-      color: #ccc;
+      font-size: 1.1rem;          /* Slightly larger than body text */
+      height: 1.5rem;             /* Fixed height prevents layout shifting when text changes */
+      margin-bottom: 1rem;        /* Space between status and board */
+      color: #ccc;                /* Default muted grey */
     }
 
-    #status.win  { color: #e94560; font-weight: bold; }
-    #status.draw { color: #f5a623; font-weight: bold; }
+    #status.win  { color: #e94560; font-weight: bold; } /* Red-pink + bold when someone wins */
+    #status.draw { color: #f5a623; font-weight: bold; } /* Orange + bold on a draw */
 
+    /* ---------- GAME BOARD ---------- */
     #board {
-      display: grid;
-      grid-template-columns: repeat(3, 110px);
-      grid-template-rows:    repeat(3, 110px);
-      gap: 8px;
+      display: grid;                          /* CSS Grid layout for the 3×3 board */
+      grid-template-columns: repeat(3, 110px); /* Three equal columns, each 110 px wide */
+      grid-template-rows:    repeat(3, 110px); /* Three equal rows, each 110 px tall */
+      gap: 8px;                               /* Gap between every cell */
     }
 
+    /* ---------- INDIVIDUAL CELL ---------- */
     .cell {
-      background: #16213e;
-      border: 2px solid #0f3460;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 3rem;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.15s, transform 0.1s;
-      user-select: none;
+      background: #16213e;        /* Cell background, matching score box */
+      border: 2px solid #0f3460; /* Subtle border */
+      border-radius: 12px;        /* Rounded corners */
+      display: flex;              /* Flexbox to centre the X or O symbol */
+      align-items: center;        /* Vertically centres the symbol */
+      justify-content: center;    /* Horizontally centres the symbol */
+      font-size: 3rem;            /* Large symbol size */
+      font-weight: bold;          /* Bold X / O */
+      cursor: pointer;            /* Shows hand cursor on hover to indicate clickability */
+      transition: background 0.15s, transform 0.1s; /* Smooth hover animation */
+      user-select: none;          /* Prevents text selection when clicking quickly */
     }
 
+    /* Highlights an empty cell when the user hovers over it */
     .cell:hover:not(.taken) { background: #0f3460; transform: scale(1.04); }
 
-    .cell.x { color: #e94560; }
-    .cell.o { color: #53d8fb; }
+    .cell.x { color: #e94560; } /* X symbol colour: red-pink */
+    .cell.o { color: #53d8fb; } /* O symbol colour: cyan-blue */
 
+    /* Applied to cells in the winning combination — triggers the pulse animation */
     .cell.winner { background: #0f3460; animation: pulse 0.6s ease-in-out 2; }
 
+    /* Pulse keyframe: cells scale up slightly then back, running twice */
     @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50%       { transform: scale(1.08); }
+      0%, 100% { transform: scale(1); }    /* Normal size at start and end */
+      50%       { transform: scale(1.08); } /* Slightly enlarged at midpoint */
     }
 
+    /* ---------- BUTTONS ---------- */
     #controls {
-      display: flex;
-      gap: 1rem;
-      margin-top: 1.5rem;
+      display: flex;              /* Places buttons side by side */
+      gap: 1rem;                  /* Space between the two buttons */
+      margin-top: 1.5rem;         /* Space above the button row */
     }
 
     button {
-      padding: 0.55rem 1.4rem;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 0.95rem;
-      font-weight: 600;
-      transition: opacity 0.15s, transform 0.1s;
+      padding: 0.55rem 1.4rem;   /* Inner spacing */
+      border: none;              /* Removes default browser button border */
+      border-radius: 8px;        /* Rounded corners */
+      cursor: pointer;           /* Hand cursor on hover */
+      font-size: 0.95rem;        /* Slightly smaller than body text */
+      font-weight: 600;          /* Semi-bold label */
+      transition: opacity 0.15s, transform 0.1s; /* Smooth press animation */
     }
 
-    button:hover  { opacity: 0.85; transform: scale(1.03); }
-    button:active { transform: scale(0.97); }
+    button:hover  { opacity: 0.85; transform: scale(1.03); } /* Slightly fades and enlarges on hover */
+    button:active { transform: scale(0.97); }                 /* Slightly shrinks when clicked */
 
-    #btn-restart { background: #e94560; color: #fff; }
-    #btn-reset   { background: #0f3460; color: #eaeaea; }
+    #btn-restart { background: #e94560; color: #fff; }    /* Red-pink "New Game" button */
+    #btn-reset   { background: #0f3460; color: #eaeaea; } /* Dark blue "Reset Scores" button */
 
+    /* ---------- MODE TOGGLE (2 Players / vs AI) ---------- */
     #mode-toggle {
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      font-size: 0.9rem;
+      margin-bottom: 1rem;        /* Space below the toggle row */
+      display: flex;              /* Places labels and switch in a row */
+      align-items: center;        /* Vertically aligns all items */
+      gap: 0.75rem;               /* Space between each element */
+      font-size: 0.9rem;          /* Slightly smaller label text */
     }
 
-    #mode-toggle label { cursor: pointer; color: #aaa; }
+    #mode-toggle label { cursor: pointer; color: #aaa; } /* Muted label text; pointer cursor so clicking labels toggles the switch */
 
+    /* Custom toggle-switch wrapper */
     .toggle-switch {
-      position: relative;
-      width: 44px;
-      height: 24px;
+      position: relative;         /* Allows absolutely positioned children */
+      width: 44px;                /* Switch track width */
+      height: 24px;               /* Switch track height */
     }
 
+    /* Hides the native HTML checkbox visually */
     .toggle-switch input { opacity: 0; width: 0; height: 0; }
 
+    /* The visible pill-shaped track of the toggle */
     .slider {
-      position: absolute;
-      inset: 0;
-      background: #0f3460;
-      border-radius: 24px;
-      transition: background 0.2s;
-      cursor: pointer;
+      position: absolute;         /* Fills the .toggle-switch container */
+      inset: 0;                   /* Shorthand for top/right/bottom/left: 0 */
+      background: #0f3460;        /* Track colour when unchecked (2-player mode) */
+      border-radius: 24px;        /* Fully rounded ends */
+      transition: background 0.2s; /* Smooth colour change on toggle */
+      cursor: pointer;            /* Hand cursor */
     }
 
+    /* The circular knob inside the toggle */
     .slider::before {
-      content: '';
-      position: absolute;
-      width: 18px; height: 18px;
-      left: 3px; top: 3px;
-      background: #eaeaea;
-      border-radius: 50%;
-      transition: transform 0.2s;
+      content: '';                /* Required for pseudo-elements to render */
+      position: absolute;         /* Positioned inside the slider track */
+      width: 18px; height: 18px;  /* Knob size */
+      left: 3px; top: 3px;        /* Initial (off) position */
+      background: #eaeaea;        /* Light knob colour */
+      border-radius: 50%;         /* Makes it a circle */
+      transition: transform 0.2s; /* Smooth slide animation */
     }
 
+    /* When checkbox is checked (AI mode on): turn track cyan and slide knob to the right */
     .toggle-switch input:checked + .slider { background: #53d8fb; }
     .toggle-switch input:checked + .slider::before { transform: translateX(20px); }
   </style>
 </head>
 <body>
 
-<h1>Tic Tac Toe</h1>
+<!-- ===================== HTML STRUCTURE ===================== -->
 
+<h1>Tic Tac Toe</h1> <!-- Page title displayed at the top -->
+
+<!-- Scoreboard: three boxes showing wins for X, O, and ties -->
 <div id="scoreboard">
   <div class="score-box" id="score-x">
-    <div class="label">X</div>
-    <div class="value" id="val-x">0</div>
+    <div class="label">X</div>             <!-- Label for player X -->
+    <div class="value" id="val-x">0</div>  <!-- Live win count for X (updated by JS) -->
   </div>
   <div class="score-box" id="score-tie">
-    <div class="label">Ties</div>
-    <div class="value" id="val-tie">0</div>
+    <div class="label">Ties</div>              <!-- Label for tied games -->
+    <div class="value" id="val-tie">0</div>    <!-- Live tie count (updated by JS) -->
   </div>
   <div class="score-box" id="score-o">
-    <div class="label">O</div>
-    <div class="value" id="val-o">0</div>
+    <div class="label">O</div>             <!-- Label for player O -->
+    <div class="value" id="val-o">0</div>  <!-- Live win count for O (updated by JS) -->
   </div>
 </div>
 
+<!-- Toggle switch: switches between 2-player and vs-AI mode -->
 <div id="mode-toggle">
-  <label for="ai-toggle">2 Players</label>
+  <label for="ai-toggle">2 Players</label> <!-- Left label; clicking it also toggles the checkbox -->
   <label class="toggle-switch">
-    <input type="checkbox" id="ai-toggle" />
-    <span class="slider"></span>
+    <input type="checkbox" id="ai-toggle" /> <!-- Hidden checkbox that tracks mode state -->
+    <span class="slider"></span>             <!-- Visible styled toggle track + knob -->
   </label>
-  <label for="ai-toggle">vs AI</label>
+  <label for="ai-toggle">vs AI</label>      <!-- Right label -->
 </div>
 
+<!-- Status line: shows whose turn it is, or the game result -->
 <div id="status">Player X's turn</div>
 
+<!-- 3×3 game board: each div is one clickable cell -->
 <div id="board">
-  <div class="cell" data-index="0"></div>
-  <div class="cell" data-index="1"></div>
-  <div class="cell" data-index="2"></div>
-  <div class="cell" data-index="3"></div>
-  <div class="cell" data-index="4"></div>
-  <div class="cell" data-index="5"></div>
-  <div class="cell" data-index="6"></div>
-  <div class="cell" data-index="7"></div>
-  <div class="cell" data-index="8"></div>
+  <div class="cell" data-index="0"></div> <!-- Cell 0: top-left -->
+  <div class="cell" data-index="1"></div> <!-- Cell 1: top-centre -->
+  <div class="cell" data-index="2"></div> <!-- Cell 2: top-right -->
+  <div class="cell" data-index="3"></div> <!-- Cell 3: middle-left -->
+  <div class="cell" data-index="4"></div> <!-- Cell 4: centre -->
+  <div class="cell" data-index="5"></div> <!-- Cell 5: middle-right -->
+  <div class="cell" data-index="6"></div> <!-- Cell 6: bottom-left -->
+  <div class="cell" data-index="7"></div> <!-- Cell 7: bottom-centre -->
+  <div class="cell" data-index="8"></div> <!-- Cell 8: bottom-right -->
 </div>
 
+<!-- Control buttons -->
 <div id="controls">
-  <button id="btn-restart">New Game</button>
-  <button id="btn-reset">Reset Scores</button>
+  <button id="btn-restart">New Game</button>   <!-- Resets the board, keeps scores -->
+  <button id="btn-reset">Reset Scores</button> <!-- Clears scores and resets the board -->
 </div>
 
 <script>
-  const WINS = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  // ===================== CONSTANTS =====================
 
-  const cells   = document.querySelectorAll('.cell');
-  const status  = document.getElementById('status');
-  const valX    = document.getElementById('val-x');
-  const valO    = document.getElementById('val-o');
-  const valTie  = document.getElementById('val-tie');
-  const aiToggle = document.getElementById('ai-toggle');
+  // All 8 possible winning combinations (by cell index)
+  const WINS = [
+    [0,1,2], // top row
+    [3,4,5], // middle row
+    [6,7,8], // bottom row
+    [0,3,6], // left column
+    [1,4,7], // middle column
+    [2,5,8], // right column
+    [0,4,8], // diagonal top-left to bottom-right
+    [2,4,6]  // diagonal top-right to bottom-left
+  ];
 
-  let board, current, gameOver, scores;
+  // ===================== DOM REFERENCES =====================
 
-  scores = { X: 0, O: 0, tie: 0 };
+  const cells    = document.querySelectorAll('.cell'); // NodeList of all 9 cell divs
+  const status   = document.getElementById('status');  // Status message element
+  const valX     = document.getElementById('val-x');   // X score display element
+  const valO     = document.getElementById('val-o');   // O score display element
+  const valTie   = document.getElementById('val-tie'); // Tie score display element
+  const aiToggle = document.getElementById('ai-toggle'); // Mode toggle checkbox
+
+  // ===================== STATE =====================
+
+  let board;    // Array of 9 strings: '' (empty), 'X', or 'O'
+  let current;  // Which player's turn it is: 'X' or 'O'
+  let gameOver; // Boolean: true once the game has ended
+  let scores;   // Object tracking cumulative wins { X, O, tie }
+
+  scores = { X: 0, O: 0, tie: 0 }; // Initialise scores to zero (persists across rounds)
+
+  // ===================== GAME INITIALISATION =====================
 
   function initGame() {
-    board    = Array(9).fill('');
-    current  = 'X';
-    gameOver = false;
+    board    = Array(9).fill(''); // Reset all 9 cells to empty strings
+    current  = 'X';              // X always goes first
+    gameOver = false;            // Game is active
+
+    // Clear every cell's text and CSS classes back to the base 'cell' class
     cells.forEach(c => { c.textContent = ''; c.className = 'cell'; });
-    setStatus(`Player ${current}'s turn`);
-    status.className = '';
+
+    setStatus(`Player ${current}'s turn`); // Show whose turn it is
+    status.className = '';                 // Remove any win/draw colour class
   }
 
+  // ===================== STATUS HELPER =====================
+
+  // Updates the status text and optionally applies a CSS class ('win' or 'draw')
   function setStatus(msg, type = '') {
-    status.textContent = msg;
-    status.className   = type;
+    status.textContent = msg;  // Set the message text
+    status.className   = type; // Apply colour class (or clear it if type is '')
   }
 
+  // ===================== WIN DETECTION =====================
+
+  // Returns the winning combination array if player p has won on board b, otherwise null
   function checkWin(b, p) {
     return WINS.find(combo => combo.every(i => b[i] === p)) || null;
   }
 
+  // ===================== CLICK HANDLER =====================
+
+  // Called when a cell is clicked; idx is the 0–8 cell index
   function handleClick(idx) {
-    if (gameOver || board[idx]) return;
-    if (aiToggle.checked && current === 'O') return; // AI's turn
+    if (gameOver || board[idx]) return;             // Ignore clicks if game is over or cell is taken
+    if (aiToggle.checked && current === 'O') return; // Ignore human clicks during AI's turn
 
-    play(idx);
+    play(idx); // Make the human's move
+
+    // If the game is still running and AI mode is on and it's now O's turn, trigger AI move
     if (!gameOver && aiToggle.checked && current === 'O') {
-      setTimeout(aiMove, 350);
+      setTimeout(aiMove, 350); // 350 ms delay so the AI's response feels natural
     }
   }
 
+  // ===================== MAKE A MOVE =====================
+
+  // Places the current player's mark at index idx and checks for end-of-game
   function play(idx) {
-    board[idx]          = current;
-    cells[idx].textContent = current;
-    cells[idx].classList.add(current.toLowerCase(), 'taken');
+    board[idx] = current;                              // Record the move in the board array
+    cells[idx].textContent = current;                  // Show 'X' or 'O' in the cell
+    cells[idx].classList.add(current.toLowerCase(), 'taken'); // Add colour class + mark as taken
 
-    const winCombo = checkWin(board, current);
+    const winCombo = checkWin(board, current); // Check if the current move wins
     if (winCombo) {
-      winCombo.forEach(i => cells[i].classList.add('winner'));
-      scores[current]++;
-      updateScores();
-      setStatus(`Player ${current} wins!`, 'win');
-      gameOver = true;
+      winCombo.forEach(i => cells[i].classList.add('winner')); // Highlight winning cells
+      scores[current]++;   // Increment the winner's score
+      updateScores();      // Refresh the scoreboard display
+      setStatus(`Player ${current} wins!`, 'win'); // Show win message in red
+      gameOver = true;     // Lock the board
       return;
     }
 
+    // If every cell is filled and no winner was found, it's a draw
     if (board.every(Boolean)) {
-      scores.tie++;
-      updateScores();
-      setStatus("It's a draw!", 'draw');
-      gameOver = true;
+      scores.tie++;         // Increment tie counter
+      updateScores();       // Refresh the scoreboard display
+      setStatus("It's a draw!", 'draw'); // Show draw message in orange
+      gameOver = true;      // Lock the board
       return;
     }
 
+    // No win or draw: switch to the other player
     current = current === 'X' ? 'O' : 'X';
-    setStatus(`Player ${current}'s turn`);
+    setStatus(`Player ${current}'s turn`); // Update the status line
   }
 
+  // ===================== SCORE DISPLAY =====================
+
+  // Syncs the score box values in the DOM with the scores object
   function updateScores() {
-    valX.textContent   = scores.X;
-    valO.textContent   = scores.O;
-    valTie.textContent = scores.tie;
+    valX.textContent   = scores.X;   // Update X wins display
+    valO.textContent   = scores.O;   // Update O wins display
+    valTie.textContent = scores.tie; // Update ties display
   }
 
-  // Minimax AI
+  // ===================== AI — ENTRY POINT =====================
+
+  // Finds the best move for O using minimax and plays it
   function aiMove() {
-    let best = -Infinity, move = -1;
+    let best = -Infinity; // Track the highest score found so far
+    let move = -1;        // Index of the best move found
+
     board.forEach((v, i) => {
-      if (!v) {
-        board[i] = 'O';
-        const score = minimax(board, 0, false);
-        board[i] = '';
-        if (score > best) { best = score; move = i; }
+      if (!v) { // Only consider empty cells
+        board[i] = 'O';                         // Temporarily place O
+        const score = minimax(board, 0, false); // Evaluate the resulting board (human plays next)
+        board[i] = '';                          // Undo the temporary move
+        if (score > best) { best = score; move = i; } // Keep track of the highest-scoring move
       }
     });
-    if (move !== -1) play(move);
+
+    if (move !== -1) play(move); // Play the best move found
   }
 
+  // ===================== AI — MINIMAX ALGORITHM =====================
+
+  // Recursively evaluates every possible game state and returns a score:
+  //   +10 (minus depth) = O wins   →  AI wants to maximise this
+  //   -10 (plus depth)  = X wins   →  AI wants to minimise this (human perspective)
+  //    0                = draw
+  // depth ensures faster wins are preferred over slower wins
   function minimax(b, depth, isMax) {
-    if (checkWin(b, 'O')) return  10 - depth;
-    if (checkWin(b, 'X')) return depth - 10;
-    if (b.every(Boolean)) return 0;
+    if (checkWin(b, 'O')) return  10 - depth; // O already won: good for AI; prefer shorter paths
+    if (checkWin(b, 'X')) return depth - 10;  // X already won: bad for AI
+    if (b.every(Boolean)) return 0;           // All cells filled, no winner: draw
 
     if (isMax) {
+      // AI's turn (O): try every empty cell and pick the move with the highest score
       let best = -Infinity;
-      b.forEach((v, i) => { if (!v) { b[i] = 'O'; best = Math.max(best, minimax(b, depth+1, false)); b[i] = ''; } });
-      return best;
+      b.forEach((v, i) => {
+        if (!v) {
+          b[i] = 'O';                                          // Try placing O
+          best = Math.max(best, minimax(b, depth + 1, false)); // Recurse (human's turn next)
+          b[i] = '';                                           // Undo
+        }
+      });
+      return best; // Return the best score achievable from this state
     } else {
+      // Human's turn (X): try every empty cell and pick the move with the lowest score
       let best = Infinity;
-      b.forEach((v, i) => { if (!v) { b[i] = 'X'; best = Math.min(best, minimax(b, depth+1, true)); b[i] = ''; } });
-      return best;
+      b.forEach((v, i) => {
+        if (!v) {
+          b[i] = 'X';                                         // Try placing X
+          best = Math.min(best, minimax(b, depth + 1, true)); // Recurse (AI's turn next)
+          b[i] = '';                                          // Undo
+        }
+      });
+      return best; // Return the worst (for AI) score achievable from this state
     }
   }
 
+  // ===================== EVENT LISTENERS =====================
+
+  // Attach a click handler to every cell; converts dataset.index string to a number
   cells.forEach(cell => cell.addEventListener('click', () => handleClick(+cell.dataset.index)));
+
+  // "New Game" button: resets the board without touching scores
   document.getElementById('btn-restart').addEventListener('click', initGame);
-  document.getElementById('btn-reset').addEventListener('click', () => { scores = { X: 0, O: 0, tie: 0 }; updateScores(); initGame(); });
+
+  // "Reset Scores" button: zeroes out all scores then starts a fresh game
+  document.getElementById('btn-reset').addEventListener('click', () => {
+    scores = { X: 0, O: 0, tie: 0 }; // Reset score object
+    updateScores();                   // Refresh scoreboard display
+    initGame();                       // Start a new game
+  });
+
+  // Mode toggle: switching between 2-player and vs-AI restarts the current game
   aiToggle.addEventListener('change', initGame);
 
-  initGame();
+  // ===================== START =====================
+
+  initGame(); // Kick off the first game when the page loads
 </script>
 </body>
 </html>
