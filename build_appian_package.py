@@ -216,30 +216,27 @@ SAIL = r"""a!localVariables(
 )"""
 
 # ── XML templates ──────────────────────────────────────────────────────────────
-
+# Manifest: attribute-style <object> tag (matches Designer export format)
 MANIFEST_XML = f"""\
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <appian-package>
   <name>{INTERFACE_NAME}</name>
   <description>14-column grid layout with Add, Edit, and Delete row support.</description>
   <appian-version>26.2</appian-version>
   <objects>
-    <object>
-      <type>Interface</type>
-      <uuid>{INTERFACE_UUID}</uuid>
-      <name>{INTERFACE_NAME}</name>
-    </object>
+    <object type="Interface" uuid="{INTERFACE_UUID}" name="{INTERFACE_NAME}"/>
   </objects>
 </appian-package>
 """
 
+# Interface XML: <sail> tag (not <definition>), file named by UUID at ZIP root
 INTERFACE_XML = f"""\
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <interface xmlns="http://www.appian.com/ae/types/2009">
   <uuid>{INTERFACE_UUID}</uuid>
   <name>{INTERFACE_NAME}</name>
   <description>14-column grid layout with Add, Edit, and Delete row support.</description>
-  <definition><![CDATA[{SAIL}]]></definition>
+  <sail><![CDATA[{SAIL}]]></sail>
 </interface>
 """
 
@@ -248,9 +245,11 @@ INTERFACE_XML = f"""\
 
 def build():
     with zipfile.ZipFile(OUTPUT_ZIP, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+        # manifest at root
         zf.writestr("appian-package.xml",
                     MANIFEST_XML.encode("utf-8"))
-        zf.writestr(f"content/INTERFACE/{INTERFACE_NAME}.xml",
+        # object XML at root, named by UUID (mirrors Designer export layout)
+        zf.writestr(f"{INTERFACE_UUID}.xml",
                     INTERFACE_XML.encode("utf-8"))
 
     size_kb = OUTPUT_ZIP.stat().st_size / 1024
