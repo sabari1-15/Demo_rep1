@@ -1,0 +1,277 @@
+a!localVariables(
+  local!gridData: {
+    a!map(id: 1,  col1: "R1-C1",  col2: "R1-C2",  col3: "R1-C3",  col4: "R1-C4",
+                  col5: "R1-C5",  col6: "R1-C6",  col7: "R1-C7",  col8: "R1-C8",
+                  col9: "R1-C9",  col10: "R1-C10", col11: "R1-C11", col12: "R1-C12",
+                  col13: "R1-C13", col14: "R1-C14"),
+    a!map(id: 2,  col1: "R2-C1",  col2: "R2-C2",  col3: "R2-C3",  col4: "R2-C4",
+                  col5: "R2-C5",  col6: "R2-C6",  col7: "R2-C7",  col8: "R2-C8",
+                  col9: "R2-C9",  col10: "R2-C10", col11: "R2-C11", col12: "R2-C12",
+                  col13: "R2-C13", col14: "R2-C14"),
+    a!map(id: 3,  col1: "R3-C1",  col2: "R3-C2",  col3: "R3-C3",  col4: "R3-C4",
+                  col5: "R3-C5",  col6: "R3-C6",  col7: "R3-C7",  col8: "R3-C8",
+                  col9: "R3-C9",  col10: "R3-C10", col11: "R3-C11", col12: "R3-C12",
+                  col13: "R3-C13", col14: "R3-C14")
+  },
+  local!nextId: 4,
+  local!isAddingRow: false,
+  local!editingRowId: null,
+  local!editingRowData: a!map(
+    id: null, col1: "", col2: "", col3: "", col4: "", col5: "", col6: "", col7: "",
+    col8: "", col9: "", col10: "", col11: "", col12: "", col13: "", col14: ""
+  ),
+  local!newRowData: a!map(
+    col1: "", col2: "", col3: "", col4: "", col5: "", col6: "", col7: "",
+    col8: "", col9: "", col10: "", col11: "", col12: "", col13: "", col14: ""
+  ),
+
+  {
+    /* ── Toolbar ── */
+    a!buttonArrayLayout(
+      buttons: {
+        a!buttonWidget(
+          label: "+ Add New Row",
+          style: "PRIMARY",
+          saveInto: {
+            a!save(local!isAddingRow, true),
+            a!save(local!editingRowId, null),
+            a!save(local!newRowData, a!map(
+              col1: "", col2: "", col3: "", col4: "", col5: "", col6: "", col7: "",
+              col8: "", col9: "", col10: "", col11: "", col12: "", col13: "", col14: ""
+            ))
+          }
+        )
+      },
+      align: "START"
+    ),
+
+    /* ── Add / Edit Panel ── */
+    a!sectionLayout(
+      label: if(local!isAddingRow, "Add New Row", "Edit Row"),
+      showWhen: or(local!isAddingRow, not(isnull(local!editingRowId))),
+      contents: {
+        a!columnsLayout(
+          columns: {
+            a!columnLayout(
+              contents: {
+                a!textField(
+                  label: "Column 1",
+                  value: if(local!isAddingRow, local!newRowData.col1, local!editingRowData.col1),
+                  saveInto: if(local!isAddingRow, a!save(local!newRowData.col1, _), a!save(local!editingRowData.col1, _))
+                ),
+                a!textField(
+                  label: "Column 2",
+                  value: if(local!isAddingRow, local!newRowData.col2, local!editingRowData.col2),
+                  saveInto: if(local!isAddingRow, a!save(local!newRowData.col2, _), a!save(local!editingRowData.col2, _))
+                ),
+                a!textField(
+                  label: "Column 3",
+                  value: if(local!isAddingRow, local!newRowData.col3, local!editingRowData.col3),
+                  saveInto: if(local!isAddingRow, a!save(local!newRowData.col3, _), a!save(local!editingRowData.col3, _))
+                ),
+                a!textField(
+                  label: "Column 4",
+                  value: if(local!isAddingRow, local!newRowData.col4, local!editingRowData.col4),
+                  saveInto: if(local!isAddingRow, a!save(local!newRowData.col4, _), a!save(local!editingRowData.col4, _))
+                ),
+                a!textField(
+                  label: "Column 5",
+                  value: if(local!isAddingRow, local!newRowData.col5, local!editingRowData.col5),
+                  saveInto: if(local!isAddingRow, a!save(local!newRowData.col5, _), a!save(local!editingRowData.col5, _))
+                )
+              }
+            ),
+            a!columnLayout(
+              contents: {
+                a!textField(
+                  label: "Column 6",
+                  value: if(local!isAddingRow, local!newRowData.col6, local!editingRowData.col6),
+                  saveInto: if(local!isAddingRow, a!save(local!newRowData.col6, _), a!save(local!editingRowData.col6, _))
+                ),
+                a!textField(
+                  label: "Column 7",
+                  value: if(local!isAddingRow, local!newRowData.col7, local!editingRowData.col7),
+                  saveInto: if(local!isAddingRow, a!save(local!newRowData.col7, _), a!save(local!editingRowData.col7, _))
+                ),
+                a!textField(
+                  label: "Column 8",
+                  value: if(local!isAddingRow, local!newRowData.col8, local!editingRowData.col8),
+                  saveInto: if(local!isAddingRow, a!save(local!newRowData.col8, _), a!save(local!editingRowData.col8, _))
+                ),
+                a!textField(
+                  label: "Column 9",
+                  value: if(local!isAddingRow, local!newRowData.col9, local!editingRowData.col9),
+                  saveInto: if(local!isAddingRow, a!save(local!newRowData.col9, _), a!save(local!editingRowData.col9, _))
+                ),
+                a!textField(
+                  label: "Column 10",
+                  value: if(local!isAddingRow, local!newRowData.col10, local!editingRowData.col10),
+                  saveInto: if(local!isAddingRow, a!save(local!newRowData.col10, _), a!save(local!editingRowData.col10, _))
+                )
+              }
+            ),
+            a!columnLayout(
+              contents: {
+                a!textField(
+                  label: "Column 11",
+                  value: if(local!isAddingRow, local!newRowData.col11, local!editingRowData.col11),
+                  saveInto: if(local!isAddingRow, a!save(local!newRowData.col11, _), a!save(local!editingRowData.col11, _))
+                ),
+                a!textField(
+                  label: "Column 12",
+                  value: if(local!isAddingRow, local!newRowData.col12, local!editingRowData.col12),
+                  saveInto: if(local!isAddingRow, a!save(local!newRowData.col12, _), a!save(local!editingRowData.col12, _))
+                ),
+                a!textField(
+                  label: "Column 13",
+                  value: if(local!isAddingRow, local!newRowData.col13, local!editingRowData.col13),
+                  saveInto: if(local!isAddingRow, a!save(local!newRowData.col13, _), a!save(local!editingRowData.col13, _))
+                ),
+                a!textField(
+                  label: "Column 14",
+                  value: if(local!isAddingRow, local!newRowData.col14, local!editingRowData.col14),
+                  saveInto: if(local!isAddingRow, a!save(local!newRowData.col14, _), a!save(local!editingRowData.col14, _))
+                )
+              }
+            )
+          }
+        ),
+        a!buttonArrayLayout(
+          buttons: {
+            a!buttonWidget(
+              label: "Save",
+              style: "PRIMARY",
+              saveInto: {
+                if(
+                  local!isAddingRow,
+                  {
+                    a!save(
+                      local!gridData,
+                      append(
+                        local!gridData,
+                        a!map(
+                          id:    local!nextId,
+                          col1:  local!newRowData.col1,
+                          col2:  local!newRowData.col2,
+                          col3:  local!newRowData.col3,
+                          col4:  local!newRowData.col4,
+                          col5:  local!newRowData.col5,
+                          col6:  local!newRowData.col6,
+                          col7:  local!newRowData.col7,
+                          col8:  local!newRowData.col8,
+                          col9:  local!newRowData.col9,
+                          col10: local!newRowData.col10,
+                          col11: local!newRowData.col11,
+                          col12: local!newRowData.col12,
+                          col13: local!newRowData.col13,
+                          col14: local!newRowData.col14
+                        )
+                      )
+                    ),
+                    a!save(local!nextId, local!nextId + 1),
+                    a!save(local!isAddingRow, false)
+                  },
+                  {
+                    a!save(
+                      local!gridData,
+                      a!forEach(
+                        items: local!gridData,
+                        expression: if(
+                          fv!item.id = local!editingRowId,
+                          local!editingRowData,
+                          fv!item
+                        )
+                      )
+                    ),
+                    a!save(local!editingRowId, null)
+                  }
+                )
+              }
+            ),
+            a!buttonWidget(
+              label: "Cancel",
+              style: "SECONDARY",
+              saveInto: {
+                a!save(local!isAddingRow, false),
+                a!save(local!editingRowId, null)
+              }
+            )
+          },
+          align: "END"
+        )
+      }
+    ),
+
+    /* ── Data Grid (14 columns + Actions) ── */
+    a!gridField(
+      label: "14-Column Grid",
+      labelPosition: "ABOVE",
+      data: local!gridData,
+      columns: {
+        a!gridColumn(label: "Column 1",  sortField: "col1",  value: fv!row.col1,  width: "DISTRIBUTE"),
+        a!gridColumn(label: "Column 2",  sortField: "col2",  value: fv!row.col2,  width: "DISTRIBUTE"),
+        a!gridColumn(label: "Column 3",  sortField: "col3",  value: fv!row.col3,  width: "DISTRIBUTE"),
+        a!gridColumn(label: "Column 4",  sortField: "col4",  value: fv!row.col4,  width: "DISTRIBUTE"),
+        a!gridColumn(label: "Column 5",  sortField: "col5",  value: fv!row.col5,  width: "DISTRIBUTE"),
+        a!gridColumn(label: "Column 6",  sortField: "col6",  value: fv!row.col6,  width: "DISTRIBUTE"),
+        a!gridColumn(label: "Column 7",  sortField: "col7",  value: fv!row.col7,  width: "DISTRIBUTE"),
+        a!gridColumn(label: "Column 8",  sortField: "col8",  value: fv!row.col8,  width: "DISTRIBUTE"),
+        a!gridColumn(label: "Column 9",  sortField: "col9",  value: fv!row.col9,  width: "DISTRIBUTE"),
+        a!gridColumn(label: "Column 10", sortField: "col10", value: fv!row.col10, width: "DISTRIBUTE"),
+        a!gridColumn(label: "Column 11", sortField: "col11", value: fv!row.col11, width: "DISTRIBUTE"),
+        a!gridColumn(label: "Column 12", sortField: "col12", value: fv!row.col12, width: "DISTRIBUTE"),
+        a!gridColumn(label: "Column 13", sortField: "col13", value: fv!row.col13, width: "DISTRIBUTE"),
+        a!gridColumn(label: "Column 14", sortField: "col14", value: fv!row.col14, width: "DISTRIBUTE"),
+        a!gridColumn(
+          label: "Actions",
+          width: "ICON_2",
+          value: a!buttonArrayLayout(
+            buttons: {
+              a!buttonWidget(
+                label: "Edit",
+                size:  "SMALL",
+                style: "SECONDARY",
+                saveInto: {
+                  a!save(local!editingRowId,   fv!row.id),
+                  a!save(local!isAddingRow,    false),
+                  a!save(local!editingRowData, a!map(
+                    id:    fv!row.id,
+                    col1:  fv!row.col1,  col2:  fv!row.col2,  col3:  fv!row.col3,
+                    col4:  fv!row.col4,  col5:  fv!row.col5,  col6:  fv!row.col6,
+                    col7:  fv!row.col7,  col8:  fv!row.col8,  col9:  fv!row.col9,
+                    col10: fv!row.col10, col11: fv!row.col11, col12: fv!row.col12,
+                    col13: fv!row.col13, col14: fv!row.col14
+                  ))
+                }
+              ),
+              a!buttonWidget(
+                label:          "Delete",
+                size:           "SMALL",
+                style:          "DESTRUCTIVE",
+                confirmHeader:  "Confirm Delete",
+                confirmMessage: "Are you sure you want to delete this row? This action cannot be undone.",
+                saveInto: {
+                  a!save(
+                    local!gridData,
+                    reject(
+                      lambda!item(item.id = fv!row.id),
+                      local!gridData
+                    )
+                  ),
+                  a!save(local!editingRowId, null)
+                }
+              )
+            },
+            align: "START"
+          )
+        )
+      },
+      rowHeader: 1,
+      isSortable: true,
+      initialSorts: {
+        a!sortInfo(field: "col1", ascending: true)
+      },
+      emptyGridMessage: "No data available. Click '+ Add New Row' to get started."
+    )
+  }
+)
